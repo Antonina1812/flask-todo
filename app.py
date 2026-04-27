@@ -25,6 +25,15 @@ def add_todo():
     db.session.commit()
     return jsonify({'id': new_todo.id, 'task': new_todo.task}), 201
 
+@app.route('/todo/<int:todo_id>', methods=['DELETE'])
+def delete_todo(todo_id):
+    todo = db.session.get(Todo, todo_id)
+    if todo is None:
+        return jsonify({"error": "task was not found"}), 404
+    db.session.delete(todo)
+    db.session.commit()
+    return jsonify({"message": "task was not found"}), 200
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
