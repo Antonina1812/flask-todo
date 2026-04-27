@@ -22,7 +22,7 @@ def get_todo(todo_id):
     todo = db.session.get(Todo, todo_id)
     if todo is None:
         return jsonify({"error": "task was not found"}), 404
-    return jsonify({'id': todo.id, 'task': todo.task}), 200
+    return jsonify({'id': todo.id, 'task': todo.task})
 
 @app.route('/todos', methods=['POST'])
 def add_todo():
@@ -39,7 +39,7 @@ def delete_todo(todo_id):
         return jsonify({"error": "task was not found"}), 404
     db.session.delete(todo)
     db.session.commit()
-    return jsonify({"message": "task was not found"}), 200
+    return jsonify({"message": "task was deleted"}), 200
 
 if __name__ == '__main__':
     with app.app_context():
