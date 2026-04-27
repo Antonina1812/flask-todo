@@ -17,13 +17,6 @@ def get_todos():
     todos = Todo.query.all()
     return jsonify([{'id': t.id, 'task': t.task} for t in todos])
 
-@app.route('/todos/<int:todo_id>', methods=['GET'])
-def get_todo(todo_id):
-    todo = db.session.get(Todo, todo_id)
-    if todo is None:
-        return jsonify({"error": "task was not found"}), 404
-    return jsonify({'id': todo.id, 'task': todo.task})
-
 @app.route('/todos', methods=['POST'])
 def add_todo():
     data = request.get_json()
@@ -31,6 +24,13 @@ def add_todo():
     db.session.add(new_todo)
     db.session.commit()
     return jsonify({'id': new_todo.id, 'task': new_todo.task}), 201
+
+@app.route('/todos/<int:todo_id>', methods=['GET'])
+def get_todo(todo_id):
+    todo = db.session.get(Todo, todo_id)
+    if todo is None:
+        return jsonify({"error": "task was not found"}), 404
+    return jsonify({'id': todo.id, 'task': todo.task})
 
 @app.route('/todos/<int:todo_id>', methods=['DELETE'])
 def delete_todo(todo_id):
@@ -40,6 +40,22 @@ def delete_todo(todo_id):
     db.session.delete(todo)
     db.session.commit()
     return jsonify({"message": "task was deleted"}), 200
+
+@app.route('/todos/<int:todo_id>', methods=['PUT'])
+def update_todo(todo_id):
+    todo = db.session.get(Todo, todo_id)
+    if todo is None:
+        return jsonify({"error": "task was not found"}), 404
+    
+    data = request.get_json() # получили json от пользователя
+    new_task = data.get('task', '').strip()
+    
+    if not new_task:
+        return jsonify({"error": "task can't be empty"}), 400
+    
+    todo.task = new_task
+    db.session.commit()
+    return jsonify({'id': todo.id, 'task': todo.task})
 
 if __name__ == '__main__':
     with app.app_context():
