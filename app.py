@@ -12,12 +12,19 @@ class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     task = db.Column(db.String(200), nullable=False)
 
-@app.route('/todo', methods=['GET'])
+@app.route('/todos', methods=['GET'])
 def get_todos():
     todos = Todo.query.all()
     return jsonify([{'id': t.id, 'task': t.task} for t in todos])
 
-@app.route('/todo', methods=['POST'])
+@app.route('/todos/<int:todo_id>', methods=['GET'])
+def get_todo(todo_id):
+    todo = db.session.get(Todo, todo_id)
+    if todo is None:
+        return jsonify({"error": "task was not found"}), 404
+    return jsonify({'id': todo.id, 'task': todo.task}), 200
+
+@app.route('/todos', methods=['POST'])
 def add_todo():
     data = request.get_json()
     new_todo = Todo(task=data['task'])
@@ -25,7 +32,7 @@ def add_todo():
     db.session.commit()
     return jsonify({'id': new_todo.id, 'task': new_todo.task}), 201
 
-@app.route('/todo/<int:todo_id>', methods=['DELETE'])
+@app.route('/todos/<int:todo_id>', methods=['DELETE'])
 def delete_todo(todo_id):
     todo = db.session.get(Todo, todo_id)
     if todo is None:
